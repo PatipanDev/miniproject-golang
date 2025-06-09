@@ -22,13 +22,14 @@ const (
 )
 
 type User struct {
-	ID        uuid.UUID      `gorm:"type:uuid;default:gen_random_uuid();primaryKey" json:"id"`
-	CreatedAt time.Time      `json:"created_at" gorm:"autoCreateTime"`
-	UpdatedAt time.Time      `json:"updated_at" gorm:"autoUpdateTime"`
-	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty" gorm:"index"`
-	Email     string         `json:"email" validate:"required,max=50" gorm:"size:50"`
-	Username  string         `json:"username" validate:"required,max=255" gorm:"size:255"`
-	Password  string         `json:"password"`
-	Status    USER_STATUS    `json:"status" validate:"required,max=50" gorm:"size:50"`
-	Role      USER_ROLE      `json:"role" validate:"required,max=50" gorm:"size:50"`
+	ID           uuid.UUID      `gorm:"type:uuid;default:gen_random_uuid();primaryKey" json:"id"`
+	CreatedAt    time.Time      `json:"created_at" gorm:"autoCreateTime"`
+	UpdatedAt    time.Time      `json:"updated_at" gorm:"autoUpdateTime"`
+	DeletedAt    gorm.DeletedAt `json:"deleted_at,omitempty" gorm:"index"`
+	Email        string         `json:"email" validate:"required,max=50" gorm:"size:50"`
+	Username     string         `json:"username" validate:"required,max=255" gorm:"size:255"`
+	Password     string         `json:"password"`
+	Status       USER_STATUS    `json:"status" validate:"required,max=50" gorm:"size:50"`
+	Role         USER_ROLE      `json:"role" validate:"required,max=50" gorm:"size:50"`
+	ProfileImage string         `json:"profile_image,omitempty" gorm:"type:text"`
 }

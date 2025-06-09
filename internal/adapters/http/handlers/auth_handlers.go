@@ -2,8 +2,9 @@ package handlers
 
 import (
 	"fmt"
-	"test-backend/internal/core/domain"
-	"test-backend/internal/core/ports"
+
+	"github.com/PatipanDev/mini-project-golang/internal/core/domain"
+	"github.com/PatipanDev/mini-project-golang/internal/core/ports"
 
 	"github.com/gofiber/fiber/v2"
 )

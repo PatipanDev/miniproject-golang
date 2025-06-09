@@ -1,23 +1,10 @@
 package services
 
-<<<<<<< HEAD
-import "github.com/PatipanDev/mini-project-golang/internal/core/ports"
-
-type userService struct {
-	service ports.UserRepository 
-}
-
-func NewUserService (service ports.UserRepository) ports.UserService{
-	return userService{service: service}
-}
-
-func (s *userService) RegisterUser(user *)
-=======
 import (
 	"errors"
-	"test-backend/internal/core/domain"
-	"test-backend/internal/core/ports"
 
+	"github.com/PatipanDev/mini-project-golang/internal/core/domain"
+	"github.com/PatipanDev/mini-project-golang/internal/core/ports"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -45,4 +32,27 @@ func (s *UserServiceImp) RegisterUser(user *domain.User) error {
 
 	return s.repo.Create(user)
 }
->>>>>>> origin/dev-nueng
+
+func (s *UserServiceImp) UpdateUser(user *domain.User, id string) error {
+	err := s.repo.Update(user, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *UserServiceImp) DeleteUser(id string) error {
+	if err := s.repo.Delete(id); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *UserServiceImp) GetUserById(id string) (*domain.User, error) {
+	user, err := s.repo.FindUserById(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
