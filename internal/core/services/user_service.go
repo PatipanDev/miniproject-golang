@@ -2,9 +2,11 @@ package services
 
 import (
 	"errors"
+	"time"
 
 	"github.com/PatipanDev/mini-project-golang/internal/core/domain"
 	"github.com/PatipanDev/mini-project-golang/internal/core/ports"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -27,10 +29,22 @@ func (s *UserServiceImp) RegisterUser(user *domain.User) error {
 		return err
 	}
 
-	user.Password = string(hassPassword)
-	user.Status = domain.USER_STATUS_ACTIVE
+	newUser := &domain.User{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Email:     user.Email,
+		Username:  user.Username,
+		Password:  string(hassPassword),
+		Status:    domain.USER_STATUS_ACTIVE,
+		Roles:     make([]domain.Role, 0),
+	}
 
-	return s.repo.Create(user)
+	for _, r := range user.Roles {
+		newUser.Roles = append(newUser.Roles, domain.Role{Name: domain.USER_ROLE(r.Name)})
+	}
+
+	return s.repo.Create(newUser)
 }
 
 func (s *UserServiceImp) UpdateUser(user *domain.User, id string) error {

@@ -21,7 +21,7 @@ func main() {
 
 	}
 
-	err = db.AutoMigrate(&domain.User{})
+	err = db.AutoMigrate(&domain.User{}, &domain.Role{})
 	if err != nil {
 		log.Fatal("Failed to connect to Database", err)
 	}
