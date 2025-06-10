@@ -1,5 +1,5 @@
 # miniproject-golang
-
+<pre lang="markdown"> ``` 
 project-name/
 ├── cmd/ # จุดเริ่มต้นของแอปพลิเคชัน (main.go)
 │ └── main.go
@@ -21,3 +21,4 @@ project-name/
 ├── go.mod # Go module file
 ├── go.sum
 └── README.md
+```</pre>
