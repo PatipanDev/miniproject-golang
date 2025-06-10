@@ -3,12 +3,12 @@ package main
 import (
 	"log"
 
-	"github.com/PatipanDev/mini-project-golang/configs"
 	"github.com/PatipanDev/mini-project-golang/internal/adapters/http/handlers"
 	routers "github.com/PatipanDev/mini-project-golang/internal/adapters/http/routes"
 	"github.com/PatipanDev/mini-project-golang/internal/adapters/repositories"
 	"github.com/PatipanDev/mini-project-golang/internal/core/domain"
 	"github.com/PatipanDev/mini-project-golang/internal/core/services"
+	"github.com/PatipanDev/mini-project-golang/pkg/configs"
 )
 
 func main() {
