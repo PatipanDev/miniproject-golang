@@ -31,6 +31,9 @@ type User struct {
 
 	EmployeeID string `json:"employee_id" gorm:"uniqueIndex;size:10"`
 
+	FirstName string `json:"first_name" validate:"required,max=255" gorm:"size:255"`
+	LastName  string `json:"last_name" validate:"required,max=255"`
+
 	Email        string      `json:"email" validate:"required,max=50" gorm:"size:50"`
 	Username     string      `json:"username" validate:"required,max=255" gorm:"size:255"`
 	Password     string      `json:"password"`
@@ -74,4 +77,11 @@ func generateRandomEmployeeCode() string {
 	digit := digits[rand.Intn(len(digits))]
 
 	return fmt.Sprintf("#%c%c%c", first, second, digit)
+}
+
+type UserFilter struct {
+	Search string `json:"search"`
+	Page   int    `json:"page"`
+	Limit  int    `json:"limit"`
+	Status string `json:"status"`
 }

@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/PatipanDev/mini-project-golang/internal/core/domain"
@@ -69,4 +70,53 @@ func (s *UserServiceImp) GetUserById(id string) (*domain.User, error) {
 	}
 
 	return user, nil
+}
+
+func (s *UserServiceImp) FindUsers() ([]domain.User, error) {
+	r, err := s.repo.Get()
+	if err != nil {
+		return nil, fmt.Errorf("error get users : %w", err)
+	}
+	return r, nil
+}
+
+func (s *UserServiceImp) SearchUser(qurey string) ([]domain.User, error) {
+	return s.repo.SearchData(qurey)
+}
+
+func (s *UserServiceImp) GetPaginationUsers(page int, limit int) (*domain.Pagination, error) {
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 10
+	}
+	offset := (page - 1) * limit
+	total, err := s.repo.Count()
+	if err != nil {
+		return nil, err
+	}
+
+	users, err := s.repo.FindAll(offset, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	totalPage := int((total + int64(limit) - 1) / int64(limit))
+
+	return &domain.Pagination{
+		Page:      page,
+		Limit:     limit,
+		Total:     total,
+		TotalPage: totalPage,
+		Data:      users,
+	}, nil
+}
+
+func (s *UserServiceImp) GetUsers(filter *domain.UserFilter) ([]domain.User, int64, error) {
+	users, total, err := s.repo.FindUsers(filter)
+	if err != nil {
+		return nil, 0, fmt.Errorf("error get users: %w", err)
+	}
+	return users, total, nil
 }
