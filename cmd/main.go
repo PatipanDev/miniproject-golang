@@ -11,6 +11,7 @@ import (
 	"test-backend/internal/core/services"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
 )
 
@@ -24,6 +25,8 @@ func main() {
 	secret_key := os.Getenv("SECRET_KEY")
 
 	app := fiber.New()
+	app.Use(cors.New())
+
 	db, err := db.ConnectDB()
 	if err != nil {
 		log.Fatal("Failed to start database")
