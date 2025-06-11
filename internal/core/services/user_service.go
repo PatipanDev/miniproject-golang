@@ -131,14 +131,17 @@ func (s *UserServiceImp) UploadProfilePicture(id string, file []byte, filename s
 	newFile := fmt.Sprintf("%s_%d%s", id, time.Now().UnixNano(), ext)
 	folderPath := "uploads/profile_pictures"
 
-	fileURL, err := s.fileRepo.SaveFile(folderPath, newFile, file)
+	fileName, err := s.fileRepo.SaveFile(folderPath, newFile, file)
+
 	if err != nil {
 		return "", fmt.Errorf("failed to save file: %w", err)
 	}
 
-	err = s.userRepo.UpdateUserProfilePicURL(id, fileURL)
+	fmt.Println("oooooooooooo", fileName)
+
+	err = s.userRepo.UpdateUserProfilePicURL(id, fileName)
 	if err != nil {
 		return "", fmt.Errorf("failed to uploade user profile picture URL in database:%w", err)
 	}
-	return fileURL, nil
+	return fileName, nil
 }

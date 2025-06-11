@@ -2,6 +2,8 @@ package repositories
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/PatipanDev/mini-project-golang/internal/core/domain"
 	"github.com/PatipanDev/mini-project-golang/internal/core/ports"
@@ -119,12 +121,26 @@ func (r *GormUserRepository) FindUsers(filter *domain.UserFilter) ([]domain.User
 	return users, total, nil
 }
 
-func (r *GormUserRepository) UpdateUserProfilePicURL(id string, url string) error {
-	result := r.db.Model(&domain.User{}).Where("id = ?", id).Update("profile_image", url)
+func (r *GormUserRepository) UpdateUserProfilePicURL(id string, filename string) error {
+	var user domain.User
+
+	result := r.db.First(&user, "id = ?", id)
 	if result.Error != nil {
 		return result.Error
 	}
-	if result.RowsAffected == 0 {
+
+	if user.ProfileImage != "" {
+		oldFilePath := filepath.Join("internal/adapters/storage/uploads/profile_pictures", user.ProfileImage)
+		if err := os.Remove(oldFilePath); err != nil && !os.IsNotExist(err) {
+			return fmt.Errorf("failed to delete old profile image: %w", err)
+		}
+	}
+
+	updateResult := r.db.Model(&user).Update("profile_image", filename)
+	if updateResult.Error != nil {
+		return updateResult.Error
+	}
+	if updateResult.RowsAffected == 0 {
 		return fmt.Errorf("user with ID %s not found", id)
 	}
 	return nil
