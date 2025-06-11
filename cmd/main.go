@@ -3,12 +3,12 @@ package main
 import (
 	"log"
 
-	"github.com/PatipanDev/mini-project-golang/configs"
 	"github.com/PatipanDev/mini-project-golang/internal/adapters/http/handlers"
 	routers "github.com/PatipanDev/mini-project-golang/internal/adapters/http/routes"
 	"github.com/PatipanDev/mini-project-golang/internal/adapters/repositories"
 	"github.com/PatipanDev/mini-project-golang/internal/core/domain"
 	"github.com/PatipanDev/mini-project-golang/internal/core/services"
+	"github.com/PatipanDev/mini-project-golang/pkg/configs"
 )
 
 func main() {
@@ -27,7 +27,8 @@ func main() {
 	}
 
 	userRepo := repositories.NewUerRepository(db)
-	userServ := services.NewUserService(userRepo)
+	fileRepo := repositories.NewFileStorageRepository("internal/adapters/storage", configs.BASE_URL)
+	userServ := services.NewUserService(userRepo, fileRepo)
 	userHandler := handlers.NewHttpUserHandler(userServ)
 
 	authServ := services.NewAurhService(userRepo, configs.SECRET_KEY)
@@ -36,6 +37,9 @@ func main() {
 	api := fiberServ.Group("/api")
 
 	routers.UserRoutes(api, userHandler, authHandler)
+	routers.UploadRoutes(api, userHandler)
+
+	fiberServ.Static("uploads", "internal/adapters/storage/uploads")
 
 	err = fiberServ.Listen(":" + configs.SERVER_HTTP_PORT)
 	if err != nil {

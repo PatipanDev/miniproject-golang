@@ -6,6 +6,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.52.8
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/google/uuid v1.6.0
+	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/spf13/viper v1.20.1
 	golang.org/x/crypto v0.38.0
 	gorm.io/driver/postgres v1.6.0

@@ -145,3 +145,37 @@ func (h *HttpUserHandler) GetUsers(c *fiber.Ctx) error {
 		"data":       result,
 	})
 }
+
+// >uploade profile user
+func (h *HttpUserHandler) UploadProfilePicture(c *fiber.Ctx) error {
+	id := c.Params("id")
+	if id == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "User ID is required as query parameter or path parameter"})
+	}
+
+	file, err := c.FormFile("profile_image")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Failed to get file from form:" + err.Error()})
+	}
+
+	// อ่านไฟล์เป็น byte array
+	fileContent, err := file.Open()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to read file content:" + err.Error()})
+	}
+
+	buf := make([]byte, file.Size)
+	_, err = fileContent.Read(buf)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to read file content:" + err.Error()})
+	}
+
+	profilePicURL, err := h.service.UploadProfilePicture(id, buf, file.Filename)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to upload profile picture:" + err.Error()})
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message":       "profile picture uploaded successfully",
+		"profilePicUrl": profilePicURL,
+	})
+}

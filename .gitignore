@@ -1,0 +1,13 @@
+# ไม่สนใจไฟล์ภาพทุกชนิดในทุกๆ โฟลเดอร์
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.svg
+*.webp
+# อื่นๆ ที่เป็นไฟล์ภาพ
+
+# อนุญาตให้โฟลเดอร์ 'images/' ถูกติดตาม (แต่ไฟล์ภายในยังคงถูกละเว้นตามกฎด้านบน)
+!internal/adapters/storage/uploads/profile_pictures/
+!internal/adapters/storage/image/

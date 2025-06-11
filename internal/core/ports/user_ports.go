@@ -14,6 +14,12 @@ type UserRepository interface {
 	Count() (int64, error)
 	//filter
 	FindUsers(filter *domain.UserFilter) ([]domain.User, int64, error)
+	//update profile
+	UpdateUserProfilePicURL(id string, url string) error
+}
+
+type FileStorageRepository interface {
+	SaveFile(folderPath string, filename string, fileContent []byte) (string, error)
 }
 
 //Primary ports
@@ -25,4 +31,6 @@ type UserService interface {
 	FindUsers() ([]domain.User, error)
 	GetPaginationUsers(page int, limit int) (*domain.Pagination, error)
 	GetUsers(filter *domain.UserFilter) ([]domain.User, int64, error)
+	//upload file image
+	UploadProfilePicture(id string, file []byte, filename string) (string, error)
 }

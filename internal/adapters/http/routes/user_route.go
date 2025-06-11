@@ -1,7 +1,7 @@
 package route
 
 import (
-	"github.com/PatipanDev/mini-project-golang/configs"
+	"github.com/PatipanDev/mini-project-golang/pkg/configs"
 
 	"github.com/PatipanDev/mini-project-golang/internal/adapters/http/handlers"
 
