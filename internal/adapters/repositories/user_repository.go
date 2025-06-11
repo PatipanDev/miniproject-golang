@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"fmt"
+
 	"github.com/PatipanDev/mini-project-golang/internal/core/domain"
 	"github.com/PatipanDev/mini-project-golang/internal/core/ports"
 	"gorm.io/gorm"
@@ -115,4 +117,15 @@ func (r *GormUserRepository) FindUsers(filter *domain.UserFilter) ([]domain.User
 		return nil, 0, err
 	}
 	return users, total, nil
+}
+
+func (r *GormUserRepository) UpdateUserProfilePicURL(id string, url string) error {
+	result := r.db.Model(&domain.User{}).Where("id = ?", id).Update("profile_image", url)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("user with ID %s not found", id)
+	}
+	return nil
 }

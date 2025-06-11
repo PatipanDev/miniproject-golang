@@ -7,6 +7,7 @@ import (
 
 	"github.com/PatipanDev/mini-project-golang/internal/core/domain"
 	"github.com/PatipanDev/mini-project-golang/internal/core/ports"
+	"github.com/google/uuid"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -79,6 +80,7 @@ func (h *HttpUserHandler) FindUsers(c *fiber.Ctx) error {
 	}
 
 	type respone struct {
+		ID         uuid.UUID `json:"id"`
 		FullName   string    `json:"full_name"`
 		EmployeeID string    `json:"employee_id"`
 		Email      string    `json:"Email"`
@@ -89,6 +91,7 @@ func (h *HttpUserHandler) FindUsers(c *fiber.Ctx) error {
 	var result []respone
 	for _, u := range user {
 		result = append(result, respone{
+			ID:         u.ID,
 			FullName:   u.FirstName + " " + u.LastName,
 			EmployeeID: u.EmployeeID,
 			Email:      u.Email,
@@ -208,5 +211,39 @@ func (h *HttpUserHandler) GetUsers(c *fiber.Ctx) error {
 		"total":      total,
 		"total_page": int(math.Ceil(float64(total) / float64(limit))),
 		"data":       result,
+	})
+}
+
+// >uploade profile user
+func (h *HttpUserHandler) UploadProfilePicture(c *fiber.Ctx) error {
+	id := c.Params("id")
+	if id == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "User ID is required as query parameter or path parameter"})
+	}
+
+	file, err := c.FormFile("profile_image")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Failed to get file from form:" + err.Error()})
+	}
+
+	// อ่านไฟล์เป็น byte array
+	fileContent, err := file.Open()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to read file content:" + err.Error()})
+	}
+
+	buf := make([]byte, file.Size)
+	_, err = fileContent.Read(buf)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to read file content:" + err.Error()})
+	}
+
+	profilePicURL, err := h.service.UploadProfilePicture(id, buf, file.Filename)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to upload profile picture:" + err.Error()})
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message":       "profile picture uploaded successfully",
+		"profilePicUrl": profilePicURL,
 	})
 }

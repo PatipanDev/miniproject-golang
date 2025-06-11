@@ -22,6 +22,7 @@ var (
 	SERVER_HTTP_PORT string
 
 	SECRET_KEY string
+	BASE_URL   string
 )
 
 func init() {
@@ -51,4 +52,6 @@ func init() {
 	if err != nil {
 		DB_RUN_MIGATION = false
 	}
+
+	BASE_URL = viper.GetString("BASE_URL")
 }
