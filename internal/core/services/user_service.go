@@ -35,6 +35,8 @@ func (s *UserServiceImp) RegisterUser(user *domain.User) error {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 		Email:     user.Email,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
 		Username:  user.Username,
 		Password:  string(hassPassword),
 		Status:    domain.USER_STATUS_ACTIVE,
@@ -80,10 +82,6 @@ func (s *UserServiceImp) FindUsers() ([]domain.User, error) {
 	return r, nil
 }
 
-func (s *UserServiceImp) SearchUser(qurey string) ([]domain.User, error) {
-	return s.repo.SearchData(qurey)
-}
-
 func (s *UserServiceImp) GetPaginationUsers(page int, limit int) (*domain.Pagination, error) {
 	if page < 1 {
 		page = 1
@@ -104,12 +102,23 @@ func (s *UserServiceImp) GetPaginationUsers(page int, limit int) (*domain.Pagina
 
 	totalPage := int((total + int64(limit) - 1) / int64(limit))
 
+	var result []domain.ResUSerNoID
+	for _, u := range users {
+		result = append(result, domain.ResUSerNoID{
+			FullName:   u.FirstName + " " + u.LastName,
+			EmployeeID: u.EmployeeID,
+			Email:      u.Email,
+			Status:     string(u.Status),
+			UpdatedAt:  u.UpdatedAt,
+		})
+	}
+
 	return &domain.Pagination{
 		Page:      page,
 		Limit:     limit,
 		Total:     total,
 		TotalPage: totalPage,
-		Data:      users,
+		Data:      result,
 	}, nil
 }
 

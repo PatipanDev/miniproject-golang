@@ -9,7 +9,6 @@ type UserRepository interface {
 	Update(user *domain.User, id string) error
 	Delete(id string) error
 	FindUserById(id string) (*domain.User, error)
-	SearchData(query string) ([]domain.User, error)
 	Get() ([]domain.User, error)
 	FindAll(offset int, limit int) ([]domain.User, error)
 	Count() (int64, error)
@@ -23,7 +22,6 @@ type UserService interface {
 	UpdateUser(user *domain.User, id string) error
 	DeleteUser(id string) error
 	GetUserById(id string) (*domain.User, error)
-	SearchUser(query string) ([]domain.User, error)
 	FindUsers() ([]domain.User, error)
 	GetPaginationUsers(page int, limit int) (*domain.Pagination, error)
 	GetUsers(filter *domain.UserFilter) ([]domain.User, int64, error)

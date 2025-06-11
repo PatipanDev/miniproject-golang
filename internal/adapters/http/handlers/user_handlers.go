@@ -3,7 +3,6 @@ package handlers
 import (
 	"math"
 	"strconv"
-	"time"
 
 	"github.com/PatipanDev/mini-project-golang/internal/core/domain"
 	"github.com/PatipanDev/mini-project-golang/internal/core/ports"
@@ -78,71 +77,15 @@ func (h *HttpUserHandler) FindUsers(c *fiber.Ctx) error {
 		})
 	}
 
-	type respone struct {
-		FullName   string    `json:"full_name"`
-		EmployeeID string    `json:"employee_id"`
-		Email      string    `json:"Email"`
-		Status     string    `json:"status"`
-		UpdatedAt  time.Time `json:"update_at"`
-	}
-
-	var result []respone
+	var result []domain.ResUserWaithID
 	for _, u := range user {
-		result = append(result, respone{
+		result = append(result, domain.ResUserWaithID{
+			ID:         u.ID,
 			FullName:   u.FirstName + " " + u.LastName,
 			EmployeeID: u.EmployeeID,
 			Email:      u.Email,
 			Status:     string(u.Status),
 			UpdatedAt:  u.UpdatedAt,
-		})
-	}
-	return c.JSON(result)
-}
-
-func (h *HttpUserHandler) SearchUsers(c *fiber.Ctx) error {
-	user, err := h.service.FindUsers()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to fetch users",
-		})
-	}
-
-	type respone struct {
-		FullName  string    `json:"full_name"`
-		ID        uint      `json:"ID"`
-		Email     string    `json:"Email"`
-		Status    string    `json:"status"`
-		UpdatedAt time.Time `json:"update_at"`
-	}
-
-	q := c.Query("query")
-	if q == "" {
-		var result []respone
-		for _, u := range user {
-			result = append(result, respone{
-				FullName: u.FirstName + " " + u.LastName,
-				// ID:        u.ID,
-				Email:     u.Email,
-				Status:    string(u.Status),
-				UpdatedAt: u.UpdatedAt,
-			})
-		}
-		return c.JSON(result)
-	}
-
-	users, err := h.service.SearchUser(q)
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
-	}
-
-	var result []respone
-	for _, u := range users {
-		result = append(result, respone{
-			FullName: u.FirstName + " " + u.LastName,
-			// ID:        u.ID,
-			Email:     u.Email,
-			Status:    string(u.Status),
-			UpdatedAt: u.UpdatedAt,
 		})
 	}
 	return c.JSON(result)
@@ -179,26 +122,18 @@ func (h *HttpUserHandler) GetUsers(c *fiber.Ctx) error {
 		Limit:  limit,
 	}
 
-	type respone struct {
-		FullName  string    `json:"full_name"`
-		ID        uint      `json:"ID"`
-		Email     string    `json:"Email"`
-		Status    string    `json:"status"`
-		UpdatedAt time.Time `json:"update_at"`
-	}
-
 	users, total, err := h.service.GetUsers(&filter)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
-	var result []respone
+	var result []domain.ResUSerNoID
 	for _, u := range users {
-		result = append(result, respone{
-			FullName: u.FirstName + " " + u.LastName,
-			// ID:        u.ID,
-			Email:     u.Email,
-			Status:    string(u.Status),
-			UpdatedAt: u.UpdatedAt,
+		result = append(result, domain.ResUSerNoID{
+			FullName:   u.FirstName + " " + u.LastName,
+			EmployeeID: u.EmployeeID,
+			Email:      u.Email,
+			Status:     string(u.Status),
+			UpdatedAt:  u.UpdatedAt,
 		})
 	}
 

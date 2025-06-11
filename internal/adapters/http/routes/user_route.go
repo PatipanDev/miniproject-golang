@@ -23,6 +23,7 @@ func UserRoutes(router fiber.Router, userhandler *handlers.HttpUserHandler, auth
 	user.Get("/", userhandler.FindUsers)
 	user.Get("/pagination", userhandler.GetPaginationUsers)
 	user.Get("/search", userhandler.GetUsers)
+	user.Delete("/delete/:id", userhandler.DeleteUser)
 
 	user.Use(middleware.JWTMiddleware(configs.SECRET_KEY))
 }

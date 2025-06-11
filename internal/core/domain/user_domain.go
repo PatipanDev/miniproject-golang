@@ -32,7 +32,9 @@ type User struct {
 	EmployeeID string `json:"employee_id" gorm:"uniqueIndex;size:10"`
 
 	FirstName string `json:"first_name" validate:"required,max=255" gorm:"size:255"`
-	LastName  string `json:"last_name" validate:"required,max=255"`
+	LastName  string `json:"last_name" validate:"required,max=255" gorm:"size:255"`
+	//PhoneNumber string `jso:"phone" validate:"required,max=255" gorm:"size:255"`
+	//Birthday time.Time `json:"birthday"`
 
 	Email        string      `json:"email" validate:"required,max=50" gorm:"size:50"`
 	Username     string      `json:"username" validate:"required,max=255" gorm:"size:255"`
@@ -40,6 +42,7 @@ type User struct {
 	Status       USER_STATUS `json:"status" validate:"required,max=50" gorm:"size:50"`
 	Roles        []Role      `gorm:"many2many:user_roles;" json:"roles"`
 	ProfileImage string      `json:"profile_image,omitempty" gorm:"type:text"`
+	//Work Work `json:"work"`
 }
 
 type Role struct {
@@ -84,4 +87,20 @@ type UserFilter struct {
 	Page   int    `json:"page"`
 	Limit  int    `json:"limit"`
 	Status string `json:"status"`
+}
+
+type ResUSerNoID struct {
+	FullName   string    `json:"full_name"`
+	EmployeeID string    `json:"employee_id"`
+	Email      string    `json:"Email"`
+	Status     string    `json:"status"`
+	UpdatedAt  time.Time `json:"update_at"`
+}
+type ResUserWaithID struct {
+	ID         uuid.UUID `json:"id"`
+	FullName   string    `json:"full_name"`
+	EmployeeID string    `json:"employee_id"`
+	Email      string    `json:"Email"`
+	Status     string    `json:"status"`
+	UpdatedAt  time.Time `json:"update_at"`
 }

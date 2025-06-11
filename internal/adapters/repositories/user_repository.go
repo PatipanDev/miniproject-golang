@@ -101,7 +101,7 @@ func (r *GormUserRepository) FindUsers(filter *domain.UserFilter) ([]domain.User
 
 	if filter.Search != "" {
 		search := "%" + filter.Search + "%"
-		db = db.Where("first_name ILIKE ? OR last_name ILIKE ? OR email ILIKE ?", search, search, search)
+		db = db.Where("concat(first_name, ' ', last_name) LIKE ? OR employee_id LIKE ? OR email LIKE ? OR status LIKE ?", search, search, search, search)
 	}
 
 	if filter.Status != "" {
