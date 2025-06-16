@@ -9,6 +9,7 @@ type UserRepository interface {
 	Update(user *domain.User, id string) error
 	Delete(id string) error
 	FindUserById(id string) (*domain.User, error)
+	//GetProfile(id string) (*domain.User, error)
 	Get() ([]domain.User, error)
 	FindAll(offset int, limit int) ([]domain.User, error)
 	Count() (int64, error)
@@ -30,7 +31,7 @@ type UserService interface {
 	GetUserById(id string) (*domain.User, error)
 	FindUsers() ([]domain.User, error)
 	GetPaginationUsers(page int, limit int) (*domain.Pagination, error)
-	GetUsers(filter *domain.UserFilter) ([]domain.User, int64, error)
+	GetUsers(filter *domain.UserFilter) ([]domain.ResUSerNoID, int64, error)
 	//upload file image
 	UploadProfilePicture(id string, file []byte, filename string) (string, error)
 }

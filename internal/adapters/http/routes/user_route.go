@@ -1,11 +1,11 @@
 package route
 
 import (
-	"github.com/PatipanDev/mini-project-golang/pkg/configs"
+	//"github.com/PatipanDev/mini-project-golang/pkg/configs"
 
 	"github.com/PatipanDev/mini-project-golang/internal/adapters/http/handlers"
 
-	"github.com/PatipanDev/mini-project-golang/pkg/middleware"
+	//"github.com/PatipanDev/mini-project-golang/pkg/middleware"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -13,9 +13,10 @@ import (
 func UserRoutes(router fiber.Router, userhandler *handlers.HttpUserHandler, authHandler *handlers.AuthHandler) {
 	user := router.Group("/users")
 
-	user.Post("/register", userhandler.RegisterUser)
-	user.Post("/login", authHandler.Login)
-
+	router.Post("/register", userhandler.RegisterUser)
+	router.Post("/login", authHandler.Login)
+	//user.Use(handlers.AuthRequired)
+	//user.Use(middleware.JWTMiddleware(configs.SECRET_KEY))
 	user.Put("/update/:id", userhandler.UpdateUser)
 	user.Get("/getbyid/:id", userhandler.GetUserById)
 
@@ -25,5 +26,4 @@ func UserRoutes(router fiber.Router, userhandler *handlers.HttpUserHandler, auth
 	user.Get("/search", userhandler.GetUsers)
 	user.Delete("/delete/:id", userhandler.DeleteUser)
 
-	user.Use(middleware.JWTMiddleware(configs.SECRET_KEY))
 }

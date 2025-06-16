@@ -21,6 +21,7 @@ const (
 const (
 	USER_ROLE_ADMIN    USER_ROLE = "admin"
 	USER_ROLE_PREPARER USER_ROLE = "preparer"
+	USER_ROLE_EMPLOYEE USER_ROLE = "employee"
 )
 
 type User struct {
@@ -40,7 +41,7 @@ type User struct {
 	Username     string      `json:"username" validate:"required,max=255" gorm:"size:255"`
 	Password     string      `json:"password"`
 	Status       USER_STATUS `json:"status" validate:"required,max=50" gorm:"size:50"`
-	Roles        []Role      `gorm:"many2many:user_roles;" json:"roles"`
+	Roles        []Role      `gorm:"many2many:user_roles;joinForeignKey:UserID;joinReferences:RoleID;" json:"roles"`
 	ProfileImage string      `json:"profile_image,omitempty" gorm:"type:text"`
 	//Work Work `json:"work"`
 }
@@ -48,6 +49,7 @@ type User struct {
 type Role struct {
 	ID   uint      `gorm:"primaryKey" json:"id"`
 	Name USER_ROLE `gorm:"unique;size:50" json:"name"` // เช่น "admin", "preparer"
+	//User []User    `gorm:"many2many:user_roles;"`
 }
 
 // create employee id
@@ -95,6 +97,7 @@ type ResUSerNoID struct {
 	Email      string    `json:"Email"`
 	Status     string    `json:"status"`
 	UpdatedAt  time.Time `json:"update_at"`
+	Roles      []string  `json:"role"`
 }
 type ResUserWaithID struct {
 	ID         uuid.UUID `json:"id"`
@@ -103,4 +106,18 @@ type ResUserWaithID struct {
 	Email      string    `json:"Email"`
 	Status     string    `json:"status"`
 	UpdatedAt  time.Time `json:"update_at"`
+	Roles      []string  `json:"role"`
+}
+
+type UserProfileResponse struct {
+	ID           uuid.UUID      `json:"id"`
+	ProfileImage string         `json:"profile_image"`
+	FullName     string         `json:"full_name"`
+	EmployeeID   string         `json:"employee_id"`
+	Email        string         `json:"email"`
+	Status       string         `json:"status"`
+	Roles        []string       `json:"role"`
+	CreatedAt    time.Time      `json:"created_at"`
+	UpdatedAt    time.Time      `json:"updated_at"`
+	DeletedAt    gorm.DeletedAt `json:"deleted_at"`
 }

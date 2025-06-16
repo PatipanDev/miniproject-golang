@@ -66,7 +66,26 @@ func (h *HttpUserHandler) GetUserById(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"data": user})
+
+	var roles []string
+	for _, r := range user.Roles {
+		roles = append(roles, string(r.Name))
+	}
+
+	resp := domain.UserProfileResponse{
+		ID:           user.ID,
+		ProfileImage: user.ProfileImage,
+		FullName:     user.FirstName + " " + user.LastName,
+		EmployeeID:   user.EmployeeID,
+		Email:        user.Email,
+		Status:       string(user.Status),
+		Roles:        roles,
+		CreatedAt:    user.CreatedAt,
+		UpdatedAt:    user.UpdatedAt,
+		DeletedAt:    user.DeletedAt,
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"data": resp})
 }
 
 func (h *HttpUserHandler) FindUsers(c *fiber.Ctx) error {
@@ -75,6 +94,13 @@ func (h *HttpUserHandler) FindUsers(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to fetch user",
 		})
+	}
+
+	users := domain.User{}
+
+	var roles []string
+	for _, r := range users.Roles {
+		roles = append(roles, string(r.Name))
 	}
 
 	var result []domain.ResUserWaithID
@@ -86,6 +112,7 @@ func (h *HttpUserHandler) FindUsers(c *fiber.Ctx) error {
 			Email:      u.Email,
 			Status:     string(u.Status),
 			UpdatedAt:  u.UpdatedAt,
+			Roles:      roles,
 		})
 	}
 	return c.JSON(result)
@@ -126,23 +153,13 @@ func (h *HttpUserHandler) GetUsers(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
-	var result []domain.ResUSerNoID
-	for _, u := range users {
-		result = append(result, domain.ResUSerNoID{
-			FullName:   u.FirstName + " " + u.LastName,
-			EmployeeID: u.EmployeeID,
-			Email:      u.Email,
-			Status:     string(u.Status),
-			UpdatedAt:  u.UpdatedAt,
-		})
-	}
 
 	return c.JSON(fiber.Map{
 		"page":       page,
 		"limit":      limit,
 		"total":      total,
 		"total_page": int(math.Ceil(float64(total) / float64(limit))),
-		"data":       result,
+		"data":       users,
 	})
 }
 
@@ -179,3 +196,28 @@ func (h *HttpUserHandler) UploadProfilePicture(c *fiber.Ctx) error {
 		"profilePicUrl": profilePicURL,
 	})
 }
+
+/* func (h *HttpUserHandler) GetProfile(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+	id, err := uuid.Parse(idParam)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid UUID"})
+	}
+
+	user, err := h.service.GetUserById(idParam)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "user not found"})
+	}
+
+	// Map to response DTO
+	resp := domain.UserProfileResponse{
+		ID:           user.ID,
+		ProfileImage: user.ProfileImage,
+		FullName:     user.FirstName + " " + user.LastName,
+		EmployeeID:   user.EmployeeID,
+		Email:        user.Email,
+		Status:       string(user.Status),
+	}
+
+	return c.JSON(resp)
+}*/

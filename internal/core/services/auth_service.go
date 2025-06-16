@@ -20,17 +20,22 @@ func NewAurhService(repo ports.UserRepository, jwtsecret string) *AuthService {
 }
 
 func (s *AuthService) Login(email, password string) (string, error) {
+	// Get user from email
 	user, err := s.repo.FindByEmail(email)
 	if err != nil || user == nil {
 		return "", errors.New("invalid email or password")
 	}
 
+	// compare password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
 		return "", errors.New("invalid email or password")
 	}
 
 	claims := &jwt.MapClaims{
-		"username": user.Username,
+		"sup":      user.ID,
+		"email":    user.Email,
+		"role":     user.Roles,
+		"fullname": user.FirstName + " " + user.LastName,
 		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 	}
 

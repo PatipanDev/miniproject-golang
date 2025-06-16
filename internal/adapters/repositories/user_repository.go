@@ -25,7 +25,7 @@ func (r *GormUserRepository) Create(user *domain.User) error {
 func (r *GormUserRepository) Get() ([]domain.User, error) {
 	var users []domain.User
 
-	if err := r.db.Find(&users).Error; err != nil {
+	if err := r.db.Preload("Roles").Find(&users).Error; err != nil {
 		return nil, err
 	}
 	return users, nil
@@ -66,17 +66,27 @@ func (r *GormUserRepository) Delete(id string) error {
 
 func (r *GormUserRepository) FindUserById(id string) (*domain.User, error) {
 	var user domain.User
-	if err := r.db.
-		Select("id", "email", "username", "status", "role", "profile_image", "created_at", "updated_at", "deleted_at").
+	if err := r.db.Preload("Roles").
+		Select("id", "email", "first_name", "last_name", "employee_id", "status", "profile_image", "created_at", "updated_at", "deleted_at").
 		First(&user, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
+
+/*func (r *GormUserRepository) GetProfile(id string) (*domain.User, error) {
+	var user domain.User
+	if err := r.db.
+		First(&user, "id = ?", id).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
+}*/
+
 func (r *GormUserRepository) SearchData(query string) ([]domain.User, error) {
 	var users []domain.User
 
-	if err := r.db.Where("concat(first_name, ' ', last_name) ILIKE ?", "%"+query+"%").Find(&users).Error; err != nil {
+	if err := r.db.Preload("Roles").Where("concat(first_name, ' ', last_name) ILIKE ?", "%"+query+"%").Find(&users).Error; err != nil {
 		return nil, err
 	}
 	return users, nil
@@ -85,7 +95,7 @@ func (r *GormUserRepository) SearchData(query string) ([]domain.User, error) {
 // pagination
 func (r *GormUserRepository) FindAll(offset int, limit int) ([]domain.User, error) {
 	var users []domain.User
-	if err := r.db.Limit(limit).Offset(offset).Find(&users).Error; err != nil {
+	if err := r.db.Preload("Roles").Limit(limit).Offset(offset).Find(&users).Error; err != nil {
 		return nil, err
 	}
 	return users, nil
@@ -105,7 +115,7 @@ func (r *GormUserRepository) FindUsers(filter *domain.UserFilter) ([]domain.User
 
 	if filter.Search != "" {
 		search := "%" + filter.Search + "%"
-		db = db.Where("concat(first_name, ' ', last_name) LIKE ? OR employee_id LIKE ? OR email LIKE ? OR status LIKE ?", search, search, search, search)
+		db = db.Preload("Roles").Where("concat(first_name, ' ', last_name) LIKE ? OR employee_id LIKE ? OR email LIKE ? OR status LIKE ?", search, search, search, search)
 	}
 
 	if filter.Status != "" {

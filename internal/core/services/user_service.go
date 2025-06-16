@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+	"log"
 	"path/filepath"
 	"time"
 
@@ -13,26 +14,40 @@ import (
 )
 
 type UserServiceImp struct {
-	userRepo ports.UserRepository
-	fileRepo ports.FileStorageRepository
+	userRepo    ports.UserRepository
+	fileRepo    ports.FileStorageRepository
+	emailSender ports.EmailSender
+	roleRepo    ports.RoleRepository
 }
 
-func NewUserService(repo ports.UserRepository, fileRepo ports.FileStorageRepository) ports.UserService {
+func NewUserService(repo ports.UserRepository, fileRepo ports.FileStorageRepository, emailSender ports.EmailSender, roleRepo ports.RoleRepository) *UserServiceImp {
 	return &UserServiceImp{
-		userRepo: repo,
-		fileRepo: fileRepo,
+		userRepo:    repo,
+		fileRepo:    fileRepo,
+		emailSender: emailSender,
+		roleRepo:    roleRepo,
 	}
 }
 
 func (s *UserServiceImp) RegisterUser(user *domain.User) error {
-	eixsting, _ := s.userRepo.FindByEmail(user.Email)
-	if eixsting != nil {
+	existing, _ := s.userRepo.FindByEmail(user.Email)
+	if existing != nil {
 		return errors.New("email already in use")
 	}
 
-	hassPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
+	}
+
+	// กำหนด Role เริ่มต้นให้เป็น employee
+	employeeRole := domain.Role{}
+	if err := s.roleRepo.FindByName("employee", &employeeRole); err != nil {
+		// create if not exists
+		employeeRole = domain.Role{Name: domain.USER_ROLE_EMPLOYEE}
+		if err := s.roleRepo.Create(&employeeRole); err != nil {
+			return errors.New("cannot create default role 'employee'")
+		}
 	}
 
 	newUser := &domain.User{
@@ -43,16 +58,31 @@ func (s *UserServiceImp) RegisterUser(user *domain.User) error {
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
 		Username:  user.Username,
-		Password:  string(hassPassword),
+		Password:  string(hashedPassword),
 		Status:    domain.USER_STATUS_ACTIVE,
-		Roles:     make([]domain.Role, 0),
+		Roles:     []domain.Role{employeeRole},
 	}
 
-	for _, r := range user.Roles {
-		newUser.Roles = append(newUser.Roles, domain.Role{Name: domain.USER_ROLE(r.Name)})
+	if err := s.userRepo.Create(newUser); err != nil {
+		return err
 	}
 
-	return s.userRepo.Create(newUser)
+	// ส่งอีเมลยืนยัน (แบบ HTML)
+	subject := "ยินดีต้อนรับสู่ระบบของเรา!"
+	body := fmt.Sprintf(`
+		<h2 style="background-color:powderblue; color:blue;">สวัสดีคุณ %s %s</h2>
+		<p style="color:red;">ขอบคุณที่สมัครใช้งานระบบของเรา </p>
+		<p color:yellow;>หากมีคำถามสามารถติดต่อทีมงานได้ตลอดเวลา <a href="https://youtu.be/dQw4w9WgXcQ?si=7f8rrTxSrYJd2aZV">คลิ๊กที่นี่</a></p>
+	`, newUser.FirstName, newUser.LastName)
+
+	// ส่งแบบ async และ log error ภายใน goroutine
+	go func() {
+		if err := s.emailSender.SendEmail(newUser.Email, subject, body); err != nil {
+			log.Printf("send email error: %v", err)
+		}
+	}()
+
+	return nil
 }
 
 func (s *UserServiceImp) UpdateUser(user *domain.User, id string) error {
@@ -107,6 +137,13 @@ func (s *UserServiceImp) GetPaginationUsers(page int, limit int) (*domain.Pagina
 
 	totalPage := int((total + int64(limit) - 1) / int64(limit))
 
+	users1 := domain.User{}
+
+	var roles []string
+	for _, r := range users1.Roles {
+		roles = append(roles, string(r.Name))
+	}
+
 	var result []domain.ResUSerNoID
 	for _, u := range users {
 		result = append(result, domain.ResUSerNoID{
@@ -115,6 +152,7 @@ func (s *UserServiceImp) GetPaginationUsers(page int, limit int) (*domain.Pagina
 			Email:      u.Email,
 			Status:     string(u.Status),
 			UpdatedAt:  u.UpdatedAt,
+			Roles:      roles,
 		})
 	}
 
@@ -127,12 +165,29 @@ func (s *UserServiceImp) GetPaginationUsers(page int, limit int) (*domain.Pagina
 	}, nil
 }
 
-func (s *UserServiceImp) GetUsers(filter *domain.UserFilter) ([]domain.User, int64, error) {
+func (s *UserServiceImp) GetUsers(filter *domain.UserFilter) ([]domain.ResUSerNoID, int64, error) {
 	users, total, err := s.userRepo.FindUsers(filter)
 	if err != nil {
 		return nil, 0, fmt.Errorf("error get users: %w", err)
 	}
-	return users, total, nil
+
+	var results []domain.ResUSerNoID
+	for _, u := range users {
+		// Map roles to []string
+		var roleNames []string
+		for _, r := range u.Roles {
+			roleNames = append(roleNames, string(r.Name))
+		}
+
+		results = append(results, domain.ResUSerNoID{
+			FullName:   u.FirstName + " " + u.LastName,
+			EmployeeID: u.EmployeeID,
+			Email:      u.Email,
+			Status:     string(u.Status),
+			Roles:      roleNames,
+		})
+	}
+	return results, total, nil
 }
 
 func (s *UserServiceImp) UploadProfilePicture(id string, file []byte, filename string) (string, error) {
