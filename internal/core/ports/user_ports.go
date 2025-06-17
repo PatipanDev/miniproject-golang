@@ -1,8 +1,12 @@
 package ports
 
-import "github.com/PatipanDev/mini-project-golang/internal/core/domain"
+import (
+	"context"
 
-//Secondery ports
+	"github.com/PatipanDev/mini-project-golang/internal/core/domain"
+)
+
+// Secondery ports
 type UserRepository interface {
 	Create(user *domain.User) error
 	FindByEmail(email string) (*domain.User, error)
@@ -16,14 +20,14 @@ type UserRepository interface {
 	//filter
 	FindUsers(filter *domain.UserFilter) ([]domain.User, int64, error)
 	//update profile
-	UpdateUserProfilePicURL(id string, url string) error
+	UpdateUserProfilePicName(id string, url string) error
 }
 
 type FileStorageRepository interface {
 	SaveFile(folderPath string, filename string, fileContent []byte) (string, error)
 }
 
-//Primary ports
+// Primary ports
 type UserService interface {
 	RegisterUser(user *domain.User) error
 	UpdateUser(user *domain.User, id string) error
@@ -35,4 +39,12 @@ type UserService interface {
 	GetUsers(filter *domain.UserFilter) ([]domain.User, int64, error)
 	//upload file image
 	UploadProfilePicture(id string, file []byte, filename string) (string, error)
+}
+
+type UplaodProfileService interface {
+	UploadProfile(ctx context.Context, profile *domain.UploadProfile) error
+}
+
+type UploadProfileRepository interface {
+	Save(ctx context.Context, upload *domain.UploadProfile) error
 }

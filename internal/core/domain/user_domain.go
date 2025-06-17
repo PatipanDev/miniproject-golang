@@ -85,3 +85,13 @@ type UserFilter struct {
 	Limit  int    `json:"limit"`
 	Status string `json:"status"`
 }
+
+type UploadProfile struct {
+	ID           uuid.UUID `json:"id"`
+	ProfileImage string    `json:"profile_image"`
+	ImageData    []byte    `json:"image_data"`
+}
+
+func (UploadProfile) Kind() string {
+	return "upload_image"
+}

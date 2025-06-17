@@ -23,6 +23,7 @@ var (
 
 	SECRET_KEY string
 	BASE_URL   string
+	MINIO_URL  string
 )
 
 func init() {
@@ -54,4 +55,5 @@ func init() {
 	}
 
 	BASE_URL = viper.GetString("BASE_URL")
+	MINIO_URL = viper.GetString("MINIO_URL")
 }
