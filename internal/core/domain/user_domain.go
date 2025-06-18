@@ -121,3 +121,13 @@ type UserProfileResponse struct {
 	UpdatedAt    time.Time      `json:"updated_at"`
 	DeletedAt    gorm.DeletedAt `json:"deleted_at"`
 }
+
+type UploadProfile struct {
+	ID           uuid.UUID `json:"id"`
+	ProfileImage string    `json:"profile_image"`
+	ImageData    []byte    `json:"image_data"`
+}
+
+func (UploadProfile) Kind() string {
+	return "upload_image"
+}

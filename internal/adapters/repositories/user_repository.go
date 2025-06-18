@@ -1,21 +1,27 @@
 package repositories
 
 import (
+	"context"
 	"fmt"
-	"os"
-	"path/filepath"
 
 	"github.com/PatipanDev/mini-project-golang/internal/core/domain"
 	"github.com/PatipanDev/mini-project-golang/internal/core/ports"
+	"github.com/minio/minio-go/v7"
 	"gorm.io/gorm"
 )
 
 type GormUserRepository struct {
-	db *gorm.DB
+	db          *gorm.DB
+	minioClient *minio.Client
+	bucketName  string
 }
 
-func NewUerRepository(db *gorm.DB) ports.UserRepository {
-	return &GormUserRepository{db: db}
+func NewUserRepository(db *gorm.DB, minioClient *minio.Client, bucketName string) ports.UserRepository {
+	return &GormUserRepository{
+		db:          db,
+		minioClient: minioClient,
+		bucketName:  bucketName,
+	}
 }
 
 func (r *GormUserRepository) Create(user *domain.User) error {
@@ -131,7 +137,7 @@ func (r *GormUserRepository) FindUsers(filter *domain.UserFilter) ([]domain.User
 	return users, total, nil
 }
 
-func (r *GormUserRepository) UpdateUserProfilePicURL(id string, filename string) error {
+func (r *GormUserRepository) UpdateUserProfilePicName(id string, filename string) error {
 	var user domain.User
 
 	result := r.db.First(&user, "id = ?", id)
@@ -140,9 +146,11 @@ func (r *GormUserRepository) UpdateUserProfilePicURL(id string, filename string)
 	}
 
 	if user.ProfileImage != "" {
-		oldFilePath := filepath.Join("internal/adapters/storage/uploads/profile_pictures", user.ProfileImage)
-		if err := os.Remove(oldFilePath); err != nil && !os.IsNotExist(err) {
-			return fmt.Errorf("failed to delete old profile image: %w", err)
+		oldObjectName := user.ProfileImage
+		fmt.Println("Object", oldObjectName)
+		err := r.minioClient.RemoveObject(context.Background(), r.bucketName, oldObjectName, minio.RemoveObjectOptions{})
+		if err != nil {
+			return fmt.Errorf("failed to delete old profile image from MinIO: %w", err)
 		}
 	}
 

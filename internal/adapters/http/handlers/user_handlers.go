@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"math"
 	"strconv"
 
@@ -188,12 +189,16 @@ func (h *HttpUserHandler) UploadProfilePicture(c *fiber.Ctx) error {
 	}
 
 	profilePicURL, err := h.service.UploadProfilePicture(id, buf, file.Filename)
+	// profileUrl := fmt.Sprintf("%suploads/profile_pictures/%s", configs.BASE_URL, profilePicURL)
+	profileFullURL := fmt.Sprintf("http://localhost:9000/profile/%s", profilePicURL)
+
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to upload profile picture:" + err.Error()})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message":       "profile picture uploaded successfully",
-		"profilePicUrl": profilePicURL,
+		"message":         "profile picture uploaded successfully",
+		"profile_pigeurl": profilePicURL,
+		"profile_fullurl": profileFullURL,
 	})
 }
 

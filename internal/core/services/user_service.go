@@ -432,7 +432,7 @@ func (s *UserServiceImp) UploadProfilePicture(id string, file []byte, filename s
 
 	fmt.Println("oooooooooooo", fileName)
 
-	err = s.userRepo.UpdateUserProfilePicURL(id, fileName)
+	err = s.userRepo.UpdateUserProfilePicName(id, fileName)
 	if err != nil {
 		return "", fmt.Errorf("failed to uploade user profile picture URL in database:%w", err)
 	}

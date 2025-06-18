@@ -14,6 +14,7 @@ func UploadRoutes(router fiber.Router, userhandler *handlers.HttpUserHandler) {
 	user := router.Group("/uploads")
 
 	user.Post("/profile/:id", userhandler.UploadProfilePicture)
+	user.Post("/profiler/:id", userhandler.UploadProfilePicture)
 
 	user.Use(middleware.JWTMiddleware(configs.SECRET_KEY))
 }
