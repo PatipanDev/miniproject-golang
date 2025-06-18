@@ -15,21 +15,11 @@ import (
 )
 
 // SendEmailArgs คือ struct ที่กำหนดอาร์กิวเมนต์สำหรับ Job ส่งอีเมล
-type SendEmailArgs struct {
-	To      string `json:"to"`
-	Subject string `json:"subject"`
-	Body    string `json:"body"`
-}
-
-// Kind คือฟังก์ชันที่คืนค่าชื่อเฉพาะของ Job ประเภทนี้
-func (SendEmailArgs) Kind() string {
-	return "send_email"
-}
 
 // SendEmailWorker คือ Worker ที่จะประมวลผล Job ประเภท SendEmailArgs
 // โดยจะเก็บสิ่งที่ต้องพึ่งพา (Dependencies) เช่น repository และค่าตั้งค่า SMTP
 type SendEmailWorker struct {
-	river.WorkerDefaults[SendEmailArgs]
+	river.WorkerDefaults[domain.SendEmailArgs]
 
 	emailLogRepo ports.EmailLogRepository
 	from         string
@@ -57,8 +47,12 @@ func NewSendEmailWorker(emailLogRepo ports.EmailLogRepository) *SendEmailWorker 
 	}
 }
 
+func (w *SendEmailWorker) InjectRepository(repo ports.EmailLogRepository) {
+	w.emailLogRepo = repo
+}
+
 // Work คือฟังก์ชันที่จะถูกเรียกโดย River framework เพื่อประมวลผล Job
-func (w *SendEmailWorker) Work(ctx context.Context, job *river.Job[SendEmailArgs]) error {
+func (w *SendEmailWorker) Work(ctx context.Context, job *river.Job[domain.SendEmailArgs]) error {
 	args := job.Args
 	log.Printf("กำลังส่งอีเมลไปที่ %s ด้วยหัวข้อ '%s'", args.To, args.Subject)
 

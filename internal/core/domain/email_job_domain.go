@@ -1,11 +1,12 @@
 package domain
 
-type EmailJobPayload struct {
-	To      string
-	Subject string
-	Body    string
+type SendEmailArgs struct {
+	To      string `json:"to"`
+	Subject string `json:"subject"`
+	Body    string `json:"body"`
 }
 
-func (p EmailJobPayload) Kind() string {
+// Kind คือฟังก์ชันที่คืนค่าชื่อเฉพาะของ Job ประเภทนี้
+func (SendEmailArgs) Kind() string {
 	return "send_email"
 }

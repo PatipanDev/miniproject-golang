@@ -3,6 +3,7 @@ package repositories
 
 import (
 	"github.com/PatipanDev/mini-project-golang/internal/core/domain"
+	"github.com/PatipanDev/mini-project-golang/internal/core/ports"
 	"gorm.io/gorm"
 )
 
@@ -10,7 +11,7 @@ type GormRoleRepository struct {
 	db *gorm.DB
 }
 
-func NewRoleRepository(db *gorm.DB) *GormRoleRepository {
+func NewRoleRepository(db *gorm.DB) ports.RoleRepository {
 	return &GormRoleRepository{db: db}
 }
 
