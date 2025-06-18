@@ -34,7 +34,8 @@ func NewFiberHTTPService(params *FiberHttpServiceParams) *fiber.App {
 	// storageservice.NewS3Client(configs.S3REGION)
 	// app.Use(requestid.New())
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
+		AllowOrigins:     "http://localhost:3000",
+		AllowCredentials: true,
 		AllowMethods: strings.Join([]string{
 			fiber.MethodGet,
 			fiber.MethodPost,
@@ -43,7 +44,7 @@ func NewFiberHTTPService(params *FiberHttpServiceParams) *fiber.App {
 			fiber.MethodDelete,
 			fiber.MethodPatch,
 		}, ","),
-		AllowHeaders: "*",
+		AllowHeaders: "Origin, Content-Type, Accept",
 	}))
 
 	log.Printf("Starting Fiber HTTP listener at Port [%s]...", params.Port)
