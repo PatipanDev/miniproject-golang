@@ -26,7 +26,7 @@ func (h *HttpUserHandler) RegisterUser(c *fiber.Ctx) error {
 	}
 
 	if err := h.service.RegisterUser(user); err != nil {
-		return c.Status(fiber.StatusCreated).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 	return c.Status(fiber.StatusCreated).JSON(user)
 }
